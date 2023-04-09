@@ -1,0 +1,35 @@
+#ifndef APP_UTILS_H
+#define APP_UTILS_H
+
+#include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
+#include <time.h>
+#include <cassert>
+
+using namespace sf;
+
+struct PixelImage
+{
+    Image           image   ;
+    const Uint8*    pixels  ;
+    int             width   ;
+    int             height  ;
+    int             n_pixels;
+};
+
+int ReadFile(FILE* file, Uint8** buf);
+
+void PixelImageCtor(PixelImage* img, const char* img_filename);
+void PixelImageDump(PixelImage* img);
+void AllignPixelImage(PixelImage* alligned_img, PixelImage* source_img, int x, int y);
+void PixelImageCreateFromPixels(PixelImage* img, int width, int height, const Uint8* pixels);
+
+Music* CreateMusicObject(const char* source);
+Text* CreateTextObject(Font* font, const char* msg, int fontsize, Color color, Text::Style style, float x_position, float y_position);
+Sprite* CreateSpriteObject(const char* source, float x_position, float y_position);
+int StretchSprite(Sprite* sprite, float width, float height);
+Color HSV2RGB(float H, float S, float V);
+
+int StartApp(int file_hash, const char* filename);
+
+#endif
