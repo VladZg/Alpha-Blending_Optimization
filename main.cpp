@@ -12,7 +12,7 @@
 
 using namespace sf;
 
-#define CYCLE_MAX 1
+#define CYCLE_MAX 10
 #define N_MAX     255
 #define ZERO 0x80
 
@@ -24,7 +24,8 @@ __m128i _0_m128i   = _mm_set1_epi8(0);
 __m128i _255_m128i = _mm_set1_epi16(255);
 
 inline void printf_m128i(__m128i a);
-inline void AlphaBlend(const Color* back, const Color* front, Color* screen, const int n_pixels);
+inline void printf_m256i(__m256i a);
+inline void AlphaBlend(const Color* Back, const Color* Front, Color* Screen, const int n_pixels);
 
 #define MAX_FILE_LEN 150000
 
@@ -108,11 +109,11 @@ int main()
 int main()
 {
     PixelImage table_img;
-    PixelImageCtor(&table_img, "Table.bmp");
+    PixelImageCtor(&table_img, "./Pictures/Table.bmp");
     // PixelImageDump(&table_img);
 
     PixelImage cat_img;
-    PixelImageCtor(&cat_img, "AskhatCat.bmp");
+    PixelImageCtor(&cat_img, "./Pictures/AskhatCat.bmp");
     // PixelImageDump(&cat_img);
 
     const Uint8 cat_alligned_img_pixels[table_img.width*table_img.height*4] = {};
@@ -128,7 +129,7 @@ int main()
     AllignPixelImage(&cat_alligned_img, &cat_img, 280, 220);
 
     Clock clock;
-    float fps = 0.0;
+    double fps = 0.0;
     float sum_fps = 0.0;
     int n_fps = 0;
     float avg_fps = 0.0;
@@ -137,7 +138,10 @@ int main()
     {
         clock.restart();
 
-        AlphaBlend((Color*) table_img.pixels, (Color*) cat_alligned_img.pixels, (Color*) screen_img.pixels, table_img.n_pixels);
+        for (int cycle = 0; cycle < CYCLE_MAX; cycle++)
+        {
+            AlphaBlend((Color*) table_img.pixels, (Color*) cat_alligned_img.pixels, (Color*) screen_img.pixels, table_img.n_pixels);
+        }
 
         float working_time = clock.restart().asSeconds();
         fps = 1.f / working_time;
@@ -155,7 +159,7 @@ int main()
 
 #ifdef SSE_MODE
 
-inline void AlphaBlend(const Color* back, const Color* front, Color* screen, const int n_pixels)
+inline void AlphaBlend(const Color* Back, const Color* Front, Color* Screen, const int n_pixels)
 {
     for (int pixel_i = 0; pixel_i < n_pixels; pixel_i+=4)
     {
@@ -179,8 +183,8 @@ inline void AlphaBlend(const Color* back, const Color* front, Color* screen, con
         // br3  bg3  bb3  ba3  br4  bg4  bb4  ba4   00   00   00   00   00   00   00   00
         //================================================================================
 
-        __m128i frontL = _mm_load_si128((__m128i*)(front + pixel_i));
-        __m128i backL  = _mm_load_si128((__m128i*)(back  + pixel_i));
+        __m128i frontL = _mm_load_si128((__m128i*)(Front + pixel_i));
+        __m128i backL  = _mm_load_si128((__m128i*)(Back  + pixel_i));
         __m128i frontH = (__m128i) _mm_movehl_ps((__m128) _0_m128i, (__m128) frontL);
         __m128i backH  = (__m128i) _mm_movehl_ps((__m128) _0_m128i, (__m128) backL);
 
@@ -320,50 +324,32 @@ inline void AlphaBlend(const Color* back, const Color* front, Color* screen, con
         // sr1  sg1  sb1  sa1  sr2  sg2  sb2  sa2  sr3  sg3  sb3  sa3  sr4  sg4  sb4  sa4
         //================================================================================
 
-        __m128i screen_color = (__m128i) _mm_movelh_ps((__m128) sumL, (__m128) sumH);
+        __m128i screen = (__m128i) _mm_movelh_ps((__m128) sumL, (__m128) sumH);
 
         // printf_m128i(screen_color);
         // printf("\n");
 
-        _mm_store_si128((__m128i*)(screen + pixel_i), screen_color);
+        _mm_store_si128((__m128i*)(Screen + pixel_i), screen);
     }
 }
 
 #else
 #ifdef AVX2_MODE
 
-inline void AlphaBlend(const Color* back, const Color* front, Color* screen, const int n_pixels)
-{
-    // color = front_color * front_alpha + back_color * (255 - front_alpha) >> 8
-
-    for (int pixel_i = 0; pixel_i < n_pixels; pixel_i++)
-    {
-        Color front_color = front[pixel_i];
-        Color back_color = back[pixel_i];
-        Uint8 a = front_color.a;
-
-        screen[pixel_i] = {
-                            (Uint8) (((front_color.r) * a + back_color.r * (255 - a)) >> 8),
-                            (Uint8) (((front_color.g) * a + back_color.g * (255 - a)) >> 8),
-                            (Uint8) (((front_color.b) * a + back_color.b * (255 - a)) >> 8),
-                            (Uint8) (((front_color.a) * a + back_color.a * (255 - a)) >> 8)
-                           };
-    }
-}
 
 #else
 
-inline void AlphaBlend(const Color* back, const Color* front, Color* screen, const int n_pixels)
+inline void AlphaBlend(const Color* Back, const Color* Front, Color* Screen, const int n_pixels)
 {
     // color = front_color * front_alpha + back_color * (255 - front_alpha) >> 8
 
     for (int pixel_i = 0; pixel_i < n_pixels; pixel_i++)
     {
-        Color front_color = front[pixel_i];
-        Color back_color = back[pixel_i];
+        Color front_color = Front[pixel_i];
+        Color back_color = Back[pixel_i];
         Uint8 a = front_color.a;
 
-        screen[pixel_i] = {
+        Screen[pixel_i] = {
                             (Uint8) (((front_color.r) * a + back_color.r * (255 - a)) >> 8),
                             (Uint8) (((front_color.g) * a + back_color.g * (255 - a)) >> 8),
                             (Uint8) (((front_color.b) * a + back_color.b * (255 - a)) >> 8),
@@ -379,5 +365,12 @@ inline void printf_m128i(__m128i a)
 {
     Uint8* a_byte = (Uint8*)(&a);
     for (int i = 0; i < 16; i++) printf("%03d ", a_byte[i]);
+    printf("\n");
+}
+
+inline void printf_m256i(__m256i a)
+{
+    Uint8* a_byte = (Uint8*)(&a);
+    for (int i = 0; i < 32; i++) printf("%03d ", a_byte[i]);
     printf("\n");
 }
