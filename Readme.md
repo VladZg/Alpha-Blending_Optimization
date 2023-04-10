@@ -1,10 +1,10 @@
-# Optimisation of alpha-blending algorithm
+# Optimization of alpha-blending algorithm
 
 ## Introduction
-In this work I tried to optimise algorithm of merging pictures by using available on my computer SIMD-instructions: SSE and AVX2
+In this work I tried to optimize algorithm of merging pictures by using available on my computer SIMD-instructions: SSE and AVX2
 
 ## Alpha-Blending algorithm
-This algorithm is widely used for merging pictures. There are 2 pictures: back- and foreground, 2nd one should be imposed on the 1st. When 2 pictures of the same size given as arrays of pixels in RGB format, every pixel has 4 components.
+This algorithm is widely used for merging pictures. There are two pictures: back- and foreground, second one should be imposed on the 1st. When two pictures of the same size given as arrays of pixels in RGB format, every pixel has 4 components.
 
 ``(Red, Green, Blue, Alpha)``
 
@@ -19,18 +19,18 @@ So perfomance of algorithm depends on amount of pixels in resulting picture
 ``t ~ width * height``
 
 ## Used data
-In our case, there are 2 pictures given
+In our case, there are two pictures given
 
 ![Table](Pictures/Table.bmp)
 ![AskhatCat](Pictures/AskhatCat.bmp)
 
 As a result cat have to appear on the table. Resulting picture has the same size as picture with table: ``800*600``, so number of operating pixels in algorithm is ``800*600 = 480000``. It actually takes time to process all of them.
 
-## Optimisation principles
-Ideas of optimisation that use SSE and AVX2 instructions are different.
+## Optimization principles
+Ideas of optimzation that use SSE and AVX2 instructions are different.
 
-### SSE optimisation
-We are able to process 4 pixels at the same time by using __m128i variables and SSE instructions. Here is mechanism of optimisation described step-by-step.
+### SSE optimization
+We are able to process four pixels at the same time by using __m128i variables and SSE instructions. Here is mechanism of optimization described step-by-step.
 
 1) Loading data from Front and Back pixel arrays.
 
@@ -39,7 +39,7 @@ We are able to process 4 pixels at the same time by using __m128i variables and 
 
     used commands: ``_mm_load_si128``
 
-2) Splitting pixels data on 2 variables (higher (1,2) and lower (3,4) pixels).
+2) Splitting pixels data on two variables (higher (1,2) and lower (3,4) pixels).
 
     ``__m128i front -> __m128i frontH, __m128i frontL``
     ``__m128i back  -> __m128i backtH, __m128i backL ``
@@ -86,7 +86,7 @@ We are able to process 4 pixels at the same time by using __m128i variables and 
     used commands: ``_mm_shuffle_epi8``
     ``__m128i sum_shuffle_mask = {128, 128, 128, 128, 128, 128, 128, 128, 15, 13, 11, 9, 7, 5, 3, 1}``
 
-8) Storing all 4 result pixels in result var.
+8) Storing all four result pixels in result var.
 
     ``sumH, sumL -> __m128i screen``
 
@@ -132,4 +132,4 @@ The result of running programm in the DRAW_MODE
 ![Result](Pictures/Result.png)
 
 ## Conclusion
-Thus, optimising alpha-blending alogithm by using SSE instructions, a speedup of **15.3** times was achieved
+Thus, optimizing alpha-blending alogithm by using SSE instructions, a speedup of **147.0/12.5 = 11.8** times was achieved
