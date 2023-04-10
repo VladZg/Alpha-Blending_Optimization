@@ -4,31 +4,31 @@
 In this work I tried to optimise algorithm of merging pictures by using available on my computer SIMD instructions: SSE and AVX2
 
 ## Alpha-Blending algorithm
-This algorithm is widely used for merging pictures. Where are 2 pictures: back- and foreground, 2nd one should be imposed on the 1st. When 2 pictures of the same size given as arrays of pixels in RGB format, every pixel has 4 components:
+This algorithm is widely used for merging pictures. There are 2 pictures: back- and foreground, 2nd one should be imposed on the 1st. When 2 pictures of the same size given as arrays of pixels in RGB format, every pixel has 4 components:
 
 ``(Red, Green, Blue, Alpha)``
 
-To merge pictures with the same size algorithm runs every pixel of both pictures (arrays ``front`` and ``back``) and calculates pixels of resulting picture (array ``screen``) using simple rool:
+To merge pictures with the same size we use algorithm that takes every pixel of both pictures (arrays ``front`` and ``back``) and calculates pixels of resulting picture (array ``screen``) using simple rool:
 
-``screen_clr = front_clr * front_alpha + back_clr * (1-front_alpha)``, where ``front_alpha`` is normalized alpha coefficent of the pixel of the front picture
+``screen_clr = front_clr * front_alpha + back_clr * (1-front_alpha)``, where ``front_alpha`` is normalized alpha coefficent of the front picture pixel
 
 So perfomance of algorithm depends on amount of pixels in resulting picture:
 
 ``t ~ width * height``
 
-## Using data
+## Used data
 In our case, there are 2 pictures given:
 
 ![Table](Pictures/Table.bmp)
 ![AskhatCat](Pictures/AskhatCat.bmp)
 
-As a result cat have to appear on the table. Resulting picture has the same size as picture with table: ``800*600``, so number of operating pixels in algorithm is ``600*800 = 480000``. It remains time to process all of them.
+As a result cat have to appear on the table. Resulting picture has the same size as picture with table: ``800*600``, so number of operating pixels in algorithm is ``600*800 = 480000``. It actually takes time to process all of them.
 
-## Optimisation principle
-Principles using SSE and AVX2 instructions are different:
+## Optimisation principles
+Ideas of optimisation that use SSE and AVX2 instructions are different:
 
 ### SSE optimisation:
-We are able to process 4 pixels at the same time by using __m128i variables, so let's do it. Here is mechanism of optimisation described step-by-step:
+We are able to process 4 pixels at the same time by using __m128i variables and SSE instructions. Here is mechanism of optimisation described step-by-step:
 
 1) Loading data from Front and Back pixel arrays:
     __m128i front = Front[i]
@@ -58,11 +58,11 @@ We are able to process 4 pixels at the same time by using __m128i variables, so 
     __m128i frontH -> __m128i alphaH
 
     used commands: ``_mm_shuffle_epi8``
-    __m128i alpha_shuffle_mask = {128, 14, 128, 14, 128, 14, 128, 14,   128, 6, 128, 6, 128, 6, 128, 6}
+    __m128i alpha_shuffle_mask = {128, 14, 128, 14, 128, 14, 128, 14, 128, 6, 128, 6, 128, 6, 128, 6}
 
 5) Mulling front and back colors on alphas
     frontL *= alphaL        , frontH *= alphaH
-    backL  *= (255 - alphaL), backH  *= (255 - alpkaH)
+    backL  *= (255 - alphaL), backH  *= (255 - alphaH)
 
     used commands: ``_mm_mullo_epi16``, ``_mm_sub_epi16``
 
@@ -90,23 +90,32 @@ We are able to process 4 pixels at the same time by using __m128i variables, so 
     used commands: ``_mm_store_si128``
 
 ### AVX2 optimisation:
-
+in process...
 
 ## Perfomance
 To evaluate and compare the speed of working algorithms I calculate fps value of 10 cycles of Alpha-Blending:
 
 ``fps = 1 / blending_time``
 
-It's important to evaluate the time correctly, so when I do it, app don't draw anything in SFML, just operaties with arrays
+It's important to evaluate the time correctly, so when I do it, app don't draw anything in SFML, just operates with arrays of pixels
 
 Evaluations made with precision of measuring ~ 0.3 s^(-1)
 
-|optimisation \ flag|None   |-O0 |-O1  |-O2  |-O3     |-Ofast|
-|:------------------|:-----:|:--:|:---:|:---:|:------:|:----:|
-|no optimisation    |9.9    |9.9 |12.5 |12.9 |12.9    |12.9  |
-|SSE inctructions   |9.6    |9.3 |148.3|150.7|151.2   |150.9 |
-|AVX2 instructions  |       |    |     |     |        |      |
+|optimisation \ flag      |None   |-O0 |-O1  |-O2  |-O3      |-Ofast|
+|:------------------------|:-----:|:--:|:---:|:---:|:------: |:----:|
+|no optimisation,   s^(-1)|**9.9**|9.9 |12.5 |12.9 |12.9     |12.9  |
+|speed increase,    s^(-1)|  1.0  |1.0 |1.3  |1.3  |1.3      |1.3   |
+|                         |       |    |     |     |         |      |
+|SSE inctructions,  s^(-1)|9.6    |9.3 |148.3|150.7|**151.2**|150.9 |
+|speed increase,    s^(-1)|1.0    |0.9 |15.0 |15.2 |**15.3** |15.2  |
+|                         |       |    |     |     |         |      |
+|AVX2 instructions, s^(-1)|       |    |     |     |         |      |
+|speed increase,    s^(-1)|       |    |     |     |         |      |
 
 ## Results
+
 The result of running programm in the DRAW_MODE:
 ![Result](Pictures/Result.png)
+
+## Conclusion
+

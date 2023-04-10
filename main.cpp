@@ -317,7 +317,7 @@ inline void AlphaBlend(const Color* Back, const Color* Front, Color* Screen, con
         // printf("\n");
 
         //================================================================================
-        // Storing all 4 pixels in __m128i var and loading it to screen array
+        // Storing all 4 pixels in __m128i var and loading it to the screen array
         //================================================================================
         // screen_color
         // [15] [14] [13] [12] [11] [10] [09] [08] [07] [06] [05] [04] [03] [02] [01] [00]
