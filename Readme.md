@@ -98,7 +98,7 @@ We are able to process 4 pixels at the same time by using __m128i variables and 
 
     used commands: ``_mm_store_si128``
 
-### AVX2 optimisation
+### AVX2 optimization
 in process...
 
 ## Perfomance
@@ -110,9 +110,9 @@ It's important to evaluate the time correctly, so when I do it, app don't draw a
 
 Evaluations made with precision ~ ``0.2 sec^(-1)``
 
-|optimisation \ flag        |None   |-O0 |-O1  |-O2  |-O3      |-Ofast|
+|optimization \ flag        |None   |-O0 |-O1  |-O2  |-O3      |-Ofast|
 |:--------------------------|:-----:|:--:|:---:|:---:|:-------:|:----:|
-|no optimisation,   sec^(-1)|**9.1**|9.7 |12.1 |12.6 |12.5     |12.5  |
+|no optimization,   sec^(-1)|**9.1**|9.7 |12.1 |12.6 |12.5     |12.5  |
 |                           |       |    |     |     |         |      |
 |SSE inctructions,  sec^(-1)|9.7    |9.9 |133.0|132.0|**147.0**|145.0 |
 |speed increase,    sec^(-1)|1.1    |1.02|11.0 |15.2 |11.8     |11.6  |
@@ -120,7 +120,9 @@ Evaluations made with precision ~ ``0.2 sec^(-1)``
 |AVX2 instructions, sec^(-1)|       |    |     |     |         |      |
 |speed increase,    sec^(-1)|       |    |     |     |         |      |
 
-speed_increase = (optimisation_time / no_optimisation_time)
+In the table speed increase calculated by formula
+``speed_increase = (optimization_time / no_optimization_time)`` ,
+where times are taken with the same set of flags
 
 Max speedup is **147,0/9.1 = 16.2**
 
