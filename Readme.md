@@ -99,18 +99,18 @@ To evaluate and compare the speed of working algorithms I calculate fps value of
 
 It's important to evaluate the time correctly, so when I do it, app don't draw anything in SFML, just operates with arrays of pixels
 
-Evaluations made with precision of measuring ~ 0.3 s^(-1)
+Evaluations made with precision ~ ``0.3 sec^(-1)``
 
-|optimisation \ flag      |None   |-O0 |-O1  |-O2  |-O3      |-Ofast|
-|:------------------------|:-----:|:--:|:---:|:---:|:------: |:----:|
-|no optimisation,   s^(-1)|**9.9**|9.9 |12.5 |12.9 |12.9     |12.9  |
-|speed increase,    s^(-1)|  1.0  |1.0 |1.3  |1.3  |1.3      |1.3   |
-|                         |       |    |     |     |         |      |
-|SSE inctructions,  s^(-1)|9.6    |9.3 |148.3|150.7|**151.2**|150.9 |
-|speed increase,    s^(-1)|1.0    |0.9 |15.0 |15.2 |**15.3** |15.2  |
-|                         |       |    |     |     |         |      |
-|AVX2 instructions, s^(-1)|       |    |     |     |         |      |
-|speed increase,    s^(-1)|       |    |     |     |         |      |
+|optimisation \ flag        |None   |-O0 |-O1  |-O2  |-O3      |-Ofast|
+|:--------------------------|:-----:|:--:|:---:|:---:|:-------:|:----:|
+|no optimisation,   sec^(-1)|**9.9**|9.9 |12.5 |12.9 |12.9     |12.9  |
+|speed increase,    sec^(-1)|  1.0  |1.0 |1.3  |1.3  |1.3      |1.3   |
+|                           |       |    |     |     |         |      |
+|SSE inctructions,  sec^(-1)|9.6    |9.3 |148.3|150.7|**151.2**|150.9 |
+|speed increase,    sec^(-1)|1.0    |0.9 |15.0 |15.2 |**15.3** |15.2  |
+|                           |       |    |     |     |         |      |
+|AVX2 instructions, sec^(-1)|       |    |     |     |         |      |
+|speed increase,    sec^(-1)|       |    |     |     |         |      |
 
 ## Results
 
@@ -118,4 +118,4 @@ The result of running programm in the DRAW_MODE:
 ![Result](Pictures/Result.png)
 
 ## Conclusion
-
+Thus, optimising alpha-blending alogithm by using SSE instructions, a speedup of **15.3** times was achieved
