@@ -1,5 +1,5 @@
 TARGET = main
-FLAGS = -Ofast -mavx2 #-O3 #-mavx512vl
+FLAGS = -O3 -mavx2 #-O3 #-mavx512vl
 
 all: compile link run
 

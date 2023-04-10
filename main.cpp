@@ -385,6 +385,10 @@ inline void AlphaBlend(const Color* Back, const Color* Front, Color* Screen, con
 #else
 #ifdef AVX2_MODE
 
+inline void AlphaBlend(const Color* Back, const Color* Front, Color* Screen, const int n_pixels)
+{
+
+}
 
 #else
 
