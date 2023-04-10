@@ -35,7 +35,6 @@ We are able to process 4 pixels at the same time by using __m128i variables and 
 1) Loading data from Front and Back pixel arrays:
 
     ``__m128i front = Front[i]``
-
     ``__m128i back  = Back[i] ``
 
     used commands: ``_mm_load_si128``
@@ -43,7 +42,6 @@ We are able to process 4 pixels at the same time by using __m128i variables and 
 2) Splitting pixels data on 2 variables (higher (1,2) and lower (3,4) pixels):
 
     ``__m128i front -> __m128i frontH, __m128i frontL``
-
     ``__m128i back  -> __m128i backtH, __m128i backL ``
 
     used commands: ``_mm_movehl_ps``
@@ -61,7 +59,6 @@ We are able to process 4 pixels at the same time by using __m128i variables and 
     |value| ai | 00 | ai | 00 | ai | 00 | ai | 00 | aj | 00 | aj | 00 | aj | 00 | aj | 00 |
 
     ``__m128i frontL -> __m128i alphaL``
-
     ``__m128i frontH -> __m128i alphaH``
 
     used commands: ``_mm_shuffle_epi8``
@@ -70,7 +67,6 @@ We are able to process 4 pixels at the same time by using __m128i variables and 
 5) Mulling front and back colors on alphas
 
     ``frontL *= alphaL        , frontH *= alphaH        ``
-
     ``backL  *= (255 - alphaL), backH  *= (255 - alphaH)``
 
     used commands: ``_mm_mullo_epi16``, ``_mm_sub_epi16``
@@ -78,7 +74,6 @@ We are able to process 4 pixels at the same time by using __m128i variables and 
 6) Summing front and back colors
 
     ``__m128i sumL = frontL + backL``
-
     ``__m128i sumH = frontH + backH``
 
     used commands: ``_mm_add_epi16``
