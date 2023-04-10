@@ -183,10 +183,20 @@ inline void AlphaBlend(const Color* Back, const Color* Front, Color* Screen, con
         // br3  bg3  bb3  ba3  br4  bg4  bb4  ba4   00   00   00   00   00   00   00   00
         //================================================================================
 
-        __m128i frontL = _mm_load_si128((__m128i*)(Front + pixel_i));
-        __m128i backL  = _mm_load_si128((__m128i*)(Back  + pixel_i));
-        __m128i frontH = (__m128i) _mm_movehl_ps((__m128) _0_m128i, (__m128) frontL);
-        __m128i backH  = (__m128i) _mm_movehl_ps((__m128) _0_m128i, (__m128) backL);
+        Pixel_128i front = {
+                            _mm_load_si128((__m128i*)(Front + pixel_i)),
+                            (__m128i) _mm_movehl_ps((__m128) _0_m128i, (__m128) front.pixelsL)
+                           };
+
+        Pixel_128i back = {
+                            _mm_load_si128((__m128i*)(Back  + pixel_i)),
+                            (__m128i) _mm_movehl_ps((__m128) _0_m128i, (__m128) back.pixelsL)
+                          };
+
+        // __m128i frontL = _mm_load_si128((__m128i*)(Front + pixel_i));
+        // __m128i backL  = _mm_load_si128((__m128i*)(Back  + pixel_i));
+        // __m128i frontH = (__m128i) _mm_movehl_ps((__m128) _0_m128i, (__m128) frontL);
+        // __m128i backH  = (__m128i) _mm_movehl_ps((__m128) _0_m128i, (__m128) backL);
 
         // printf_m128i(frontL);
         // printf_m128i(frontH);
@@ -214,10 +224,20 @@ inline void AlphaBlend(const Color* Back, const Color* Front, Color* Screen, con
         // br3   00  bg3   00  bb3   00  ba3   00  br4   00  bg4   00  bb4   00  ba4   00
         //================================================================================
 
-        frontL = _mm_cvtepu8_epi16(frontL);
-        frontH = _mm_cvtepu8_epi16(frontH);
-        backL  = _mm_cvtepu8_epi16(backL );
-        backH  = _mm_cvtepu8_epi16(backH );
+        front = {
+                 _mm_cvtepu8_epi16(front.pixelsL),
+                 _mm_cvtepu8_epi16(front.pixelsH)
+                };
+
+        back  = {
+                 _mm_cvtepu8_epi16(back.pixelsL),
+                 _mm_cvtepu8_epi16(back.pixelsH)
+                };
+
+        // frontL = _mm_cvtepu8_epi16(frontL);
+        // frontH = _mm_cvtepu8_epi16(frontH);
+        // backL  = _mm_cvtepu8_epi16(backL );
+        // backH  = _mm_cvtepu8_epi16(backH );
 
         // printf_m128i(frontL);
         // printf_m128i(frontH);
@@ -237,9 +257,16 @@ inline void AlphaBlend(const Color* Back, const Color* Front, Color* Screen, con
         // fa3   00  fa3   00  fa3   00  fa3   00  fa4   00  fa4   00  fa4   00  fa4   00
         //================================================================================
 
-        __m128i alpha_shuffle_mask = _mm_set_epi8(ZERO, 14, ZERO, 14, ZERO, 14, ZERO, 14, ZERO, 6, ZERO, 6, ZERO, 6, ZERO, 6);
-        __m128i alphaL = _mm_shuffle_epi8(frontL, alpha_shuffle_mask);  // a1, a2
-        __m128i alphaH = _mm_shuffle_epi8(frontH, alpha_shuffle_mask);  // a3, a4
+        __m128i alpha_shuffle_mask = _mm_set_epi8(ZERO, 14, ZERO, 14, ZERO, 14, ZERO, 14,
+                                                  ZERO, 6,  ZERO, 6,  ZERO, 6,  ZERO, 6  );
+
+        Pixel_128i alpha = {
+                            _mm_shuffle_epi8(front.pixelsL, alpha_shuffle_mask),
+                            _mm_shuffle_epi8(front.pixelsH, alpha_shuffle_mask)
+                           };
+
+        // __m128i alphaL = _mm_shuffle_epi8(frontL, alpha_shuffle_mask);  // a1, a2
+        // __m128i alphaH = _mm_shuffle_epi8(frontH, alpha_shuffle_mask);  // a3, a4
 
         // printf_m128i(alpha_shuffle_mask);
         // printf_m128i(alphaL);
@@ -266,10 +293,20 @@ inline void AlphaBlend(const Color* Back, const Color* Front, Color* Screen, con
         // br3*(1-a3) bg3*(1-a3) bb3*(1-a3) ba3*(1-a3) br4*(1-a4) bg4*(1-a4) bb4*(1-a4) ba4*(1-a4)
         //========================================================================================
 
-        frontL = _mm_mullo_epi16(frontL, alphaL);                               // front_color1 *= a1       ; front_color2 *= a2;
-        frontH = _mm_mullo_epi16(frontH, alphaH);                               // front_color3 *= a3       ; front_color4 *= a4;
-        backL  = _mm_mullo_epi16(backL, _mm_sub_epi16(_255_m128i, alphaL));     // back_color1  *= (255-a1) ; back_color2  *= (255-a2);
-        backH  = _mm_mullo_epi16(backH, _mm_sub_epi16(_255_m128i, alphaH));     // back_color3  *= (255-a3) ; back_color4  *= (255-a4);
+        front = {
+                 _mm_mullo_epi16(front.pixelsL, alpha.pixelsL), // front_color1 *= a1;  front_color2 *= a2;
+                 _mm_mullo_epi16(front.pixelsH, alpha.pixelsH)  // front_color3 *= a3;  front_color4 *= a4;
+                };
+
+        back  = {
+                 _mm_mullo_epi16(back.pixelsL, _mm_sub_epi16(_255_m128i, alpha.pixelsL)),   // back_color1 *= (255-a1);     back_color2 *= (255-a2);
+                 _mm_mullo_epi16(back.pixelsH, _mm_sub_epi16(_255_m128i, alpha.pixelsH))    // back_color3 *= (255-a3);     back_color4 *= (255-a4);
+                };
+
+        // frontL = _mm_mullo_epi16(frontL, alphaL);                               // front_color1 *= a1       ; front_color2 *= a2;
+        // frontH = _mm_mullo_epi16(frontH, alphaH);                               // front_color3 *= a3       ; front_color4 *= a4;
+        // backL  = _mm_mullo_epi16(backL, _mm_sub_epi16(_255_m128i, alphaL));     // back_color1  *= (255-a1) ; back_color2  *= (255-a2);
+        // backH  = _mm_mullo_epi16(backH, _mm_sub_epi16(_255_m128i, alphaH));     // back_color3  *= (255-a3) ; back_color4  *= (255-a4);
 
         // printf_m128i(frontL);
         // printf_m128i(frontH);
@@ -289,8 +326,13 @@ inline void AlphaBlend(const Color* Back, const Color* Front, Color* Screen, con
         // sr3       sg3       sb3       sa3       sr4       sg4       sb4       sa4
         //================================================================================
 
-        __m128i sumL = _mm_add_epi16(frontL, backL);   // screen_color1 = front_color1 + back_color1; screen_color2 = front_color2 + back_color2;
-        __m128i sumH = _mm_add_epi16(frontH, backH);   // screen_color3 = front_color3 + back_color3; screen_color4 = front_color4 + back_color4;
+        Pixel_128i sum = {
+                          _mm_add_epi16(front.pixelsL, back.pixelsL),   // screen_color1 = front_color1 + back_color1;  screen_color2 = front_color2 + back_color2;
+                          _mm_add_epi16(front.pixelsH, back.pixelsH)    // screen_color3 = front_color3 + back_color3;  screen_color4 = front_color4 + back_color4;
+                         };
+
+        // __m128i sumL = _mm_add_epi16(frontL, backL);   // screen_color1 = front_color1 + back_color1; screen_color2 = front_color2 + back_color2;
+        // __m128i sumH = _mm_add_epi16(frontH, backH);   // screen_color3 = front_color3 + back_color3; screen_color4 = front_color4 + back_color4;
 
         // printf_m128i(sumL);
         // printf_m128i(sumH);
@@ -308,9 +350,16 @@ inline void AlphaBlend(const Color* Back, const Color* Front, Color* Screen, con
         // sr3>>8 sg3>>8 sb3>>8 sa3>>8 sr4>>8 sg4>>8 sb4>>8 sa4>>8  ??    ??    ??    ??    ??    ??    ??    ??
         //=======================================================================================================
 
-        __m128i sum_shuffle_mask = _mm_set_epi8(ZERO, ZERO, ZERO, ZERO, ZERO, ZERO, ZERO, ZERO, 15, 13, 11, 9, 7, 5, 3, 1);
-        sumL = _mm_shuffle_epi8(sumL, sum_shuffle_mask);  // screen_color1 >> 8; screen_color2 >> 8;
-        sumH = _mm_shuffle_epi8(sumH, sum_shuffle_mask);  // screen_color3 >> 8; screen_color4 >> 8;
+        __m128i sum_shuffle_mask = _mm_set_epi8(ZERO, ZERO, ZERO, ZERO, ZERO, ZERO, ZERO, ZERO,
+                                                15,   13,   11,   9,    7,    5,    3,    1    );
+
+        sum = {
+                _mm_shuffle_epi8(sum.pixelsL, sum_shuffle_mask),    // screen_color1 >> 8;  screen_color2 >> 8;
+                _mm_shuffle_epi8(sum.pixelsH, sum_shuffle_mask)     // screen_color3 >> 8;  screen_color4 >> 8;
+              };
+
+        // sumL = _mm_shuffle_epi8(sumL, sum_shuffle_mask);  // screen_color1 >> 8; screen_color2 >> 8;
+        // sumH = _mm_shuffle_epi8(sumH, sum_shuffle_mask);  // screen_color3 >> 8; screen_color4 >> 8;
 
         // printf_m128i(sumL);
         // printf_m128i(sumH);
@@ -324,7 +373,7 @@ inline void AlphaBlend(const Color* Back, const Color* Front, Color* Screen, con
         // sr1  sg1  sb1  sa1  sr2  sg2  sb2  sa2  sr3  sg3  sb3  sa3  sr4  sg4  sb4  sa4
         //================================================================================
 
-        __m128i screen = (__m128i) _mm_movelh_ps((__m128) sumL, (__m128) sumH);
+        __m128i screen = (__m128i) _mm_movelh_ps((__m128) sum.pixelsL , (__m128) sum.pixelsH);
 
         // printf_m128i(screen_color);
         // printf("\n");

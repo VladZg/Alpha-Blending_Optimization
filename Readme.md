@@ -1,7 +1,7 @@
 # Optimisation of alpha-blending algorithm
 
 ## Introduction
-In this work I tried to optimise algorithm of merging pictures by using available on my computer SIMD instructions: SSE and AVX2
+In this work I tried to optimise algorithm of merging pictures by using available on my computer SIMD-instructions: SSE and AVX2
 
 ## Alpha-Blending algorithm
 This algorithm is widely used for merging pictures. There are 2 pictures: back- and foreground, 2nd one should be imposed on the 1st. When 2 pictures of the same size given as arrays of pixels in RGB format, every pixel has 4 components:
@@ -108,18 +108,21 @@ To evaluate and compare the speed of working algorithms I calculate fps value of
 
 It's important to evaluate the time correctly, so when I do it, app don't draw anything in SFML, just operates with arrays of pixels
 
-Evaluations made with precision ~ ``0.3 sec^(-1)``
+Evaluations made with precision ~ ``0.2 sec^(-1)``
 
 |optimisation \ flag        |None   |-O0 |-O1  |-O2  |-O3      |-Ofast|
 |:--------------------------|:-----:|:--:|:---:|:---:|:-------:|:----:|
-|no optimisation,   sec^(-1)|**9.9**|9.9 |12.5 |12.9 |12.9     |12.9  |
-|speed increase,    sec^(-1)|  1.0  |1.0 |1.3  |1.3  |1.3      |1.3   |
+|no optimisation,   sec^(-1)|**9.1**|9.7 |12.1 |12.6 |12.5     |12.5  |
 |                           |       |    |     |     |         |      |
-|SSE inctructions,  sec^(-1)|9.6    |9.3 |148.3|150.7|**151.2**|150.9 |
-|speed increase,    sec^(-1)|1.0    |0.9 |15.0 |15.2 |**15.3** |15.2  |
+|SSE inctructions,  sec^(-1)|9.7    |9.9 |133.0|132.0|**147.0**|145.0 |
+|speed increase,    sec^(-1)|1.1    |1.02|11.0 |15.2 |11.8     |11.6  |
 |                           |       |    |     |     |         |      |
 |AVX2 instructions, sec^(-1)|       |    |     |     |         |      |
 |speed increase,    sec^(-1)|       |    |     |     |         |      |
+
+speed_increase = (optimisation_time / no_optimisation_time)
+
+Max speedup is **147,0/9.1 = 16.2**
 
 ## Results
 

@@ -5,6 +5,7 @@
 #include <SFML/Audio.hpp>
 #include <time.h>
 #include <cassert>
+#include <immintrin.h>
 
 using namespace sf;
 
@@ -15,6 +16,12 @@ struct PixelImage
     int             width   ;
     int             height  ;
     int             n_pixels;
+};
+
+struct Pixel_128i
+{
+    __m128i pixelsL;
+    __m128i pixelsH;
 };
 
 int ReadFile(FILE* file, Uint8** buf);
