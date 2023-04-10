@@ -43,14 +43,16 @@ We are able to process 4 pixels at the same time by using __m128i variables, so 
     used commands: _mm_movehl_ps
 
 3) Converting all variables to the format  below for mulling:
-    [15] [14] [13] [12] [11] [10] [09] [08] [07] [06] [05] [04] [03] [02] [01] [00]
-     ri   00   gi   00   bi   00   ai   00   rj   00   gj   00  bj   00   aj   00
+    |index|[15]|[14]|[13]|[12]|[11]|[10]|[09]|[08]|[07]|[06]|[05]|[04]|[03]|[02]|[01]|[00]|
+    |:----|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+    |value| ri | 00 | gi | 00 | bi | 00 | ai | 00 | rj | 00 | gj | 00 | bj | 00 | aj | 00 |
 
     used commands: _mm_cvtepu8_epi16
 
 4) Getting alpha parameters in the same format
-    [15] [14] [13] [12] [11] [10] [09] [08] [07] [06] [05] [04] [03] [02] [01] [00]
-     ai   00   ai   00   ai   00   ai   00   aj   00   aj   00  aj   00   aj   00
+    |index|[15]|[14]|[13]|[12]|[11]|[10]|[09]|[08]|[07]|[06]|[05]|[04]|[03]|[02]|[01]|[00]|
+    |:----|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+    |value| ai | 00 | ai | 00 | ai | 00 | ai | 00 | aj | 00 | aj | 00 | aj | 00 | aj | 00 |
 
     __m128i frontL -> __m128i alphaL
     __m128i frontH -> __m128i alphaH
