@@ -24,6 +24,12 @@ struct Pixel_128i
     __m128i pixelsH;
 };
 
+struct Pixel_256i
+{
+    __m256i pixelsL;
+    __m256i pixelsH;
+};
+
 int ReadFile(FILE* file, Uint8** buf);
 
 void PixelImageCtor(PixelImage* img, const char* img_filename);
@@ -35,8 +41,6 @@ Music* CreateMusicObject(const char* source);
 Text* CreateTextObject(Font* font, const char* msg, int fontsize, Color color, Text::Style style, float x_position, float y_position);
 Sprite* CreateSpriteObject(const char* source, float x_position, float y_position);
 int StretchSprite(Sprite* sprite, float width, float height);
-Color HSV2RGB(float H, float S, float V);
-
-int StartApp(int file_hash, const char* filename);
+void MoveScreen(int keycode, int* imp_x, int* imp_y);
 
 #endif

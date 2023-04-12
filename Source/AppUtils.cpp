@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <cassert>
 #include <math.h>
-#include "./AppUtils.h"
+#include "../Include/AppUtils.h"
 
 void PixelImageCtor(PixelImage* img, const char* img_filename)
 {
@@ -129,6 +129,36 @@ int StretchSprite(Sprite* sprite, float width, float height)
                      targetSize.y / sprite->getLocalBounds().height);
 
     return 1;
+}
+
+void MoveScreen(int keycode, int* imp_x, int* imp_y)
+{
+    switch(keycode)
+    {
+        case Keyboard::A:
+        {
+            (*imp_x)--;
+            break;
+        }
+
+        case Keyboard::D:
+        {
+            (*imp_x)++;
+            break;
+        }
+
+        case Keyboard::W:
+        {
+            (*imp_y)--;
+            break;
+        }
+
+        case Keyboard::S:
+        {
+            (*imp_y)++;
+            break;
+        }
+    }
 }
 
 int ReadFile(FILE* file, Uint8** buf)
