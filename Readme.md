@@ -53,7 +53,7 @@ We are able to process four pixels at the same time by using __m128i variables a
 
 **3) Converting all variables to the format for mulling.**
 
-    Multiplying a color component that takes 1 byte by another one-byte value of the alpha component, a 2-byte number is obtained, so I prepare vectors with pixel components for multiplication, supplementing each component with zeros up to 2 bytes.
+   Multiplying a color component that takes 1 byte by another one-byte value of the alpha component, a 2-byte number is obtained, so I prepare vectors with pixel components for multiplication, supplementing each component with zeros up to 2 bytes.
     
     After this step each of pixels vector looks so:
     
@@ -67,7 +67,7 @@ We are able to process four pixels at the same time by using __m128i variables a
 
 **4) Getting alpha parameters in the same format.**
     
-     To multiply pixel vectors on alpa we should prepare vectors, that contain alpha component of every front pixel. I create them at the same format for the next mulling.
+   To multiply pixel vectors on alpa we should prepare vectors, that contain alpha component of every front pixel. I create them at the same format for the next mulling.
     
     After this step there are 2 vector variables that look so:
     
@@ -96,7 +96,7 @@ We are able to process four pixels at the same time by using __m128i variables a
 
 **7) Normalizing sums.**
     
-    In the blending formula it's said that alpha parameter have to be normalized, in our case we have to divide the previous results on 255 to do it, because it is in a range from 0 to 255. However, there is a simplier and faster way to do it with a small error, that almost don't affect the result. The solution that makes step faster is division on 256 to normalize the result, because it has simple byte-operation amalog ``>>8`` that is much faster. To do it, I take the most significant byte of every component and rewrite it to the high bytes of the vector.
+   In the blending formula it's said that alpha parameter have to be normalized, in our case we have to divide the previous results on 255 to do it, because it is in a range from 0 to 255. However, there is a simplier and faster way to do it with a small error, that almost don't affect the result. The solution that makes step faster is division on 256 to normalize the result, because it has simple byte-operation amalog ``>>8`` that is much faster. To do it, I take the most significant byte of every component and rewrite it to the high bytes of the vector.
 
     sumL = sumL >> 8
     sumH = sumH >> 8
@@ -105,7 +105,7 @@ We are able to process four pixels at the same time by using __m128i variables a
 
 **8) Storing all four result pixels in result var.**
 
-    I join two sum vector variables to a new variable to load it to the memory at the next step.
+   I join two sum vector variables to a new variable to load it to the memory at the next step.
 
     sumH, sumL -> __m128i screen
 
