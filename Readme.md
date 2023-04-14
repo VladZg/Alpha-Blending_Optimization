@@ -39,83 +39,84 @@ We are able to process four pixels at the same time by using __m128i variables a
 
 **1) Loading data from Front and Back pixel arrays.**
 
-    ``__m128i front = Front[i]``
-    
-    ``__m128i back  = Back[i] ``
+    __m128i front = Front[i]
+    __m128i back  = Back[i] 
 
-   used commands: ``_mm_load_si128`` <-- I use instructions that work with alligned data, because it's faster
+    used commands: ``_mm_load_si128`` <-- I use instructions that work with alligned data, because they're faster
 
 **2) Splitting pixels data on two variables (higher (1,2) and lower (3,4) pixels).**
 
-    ``__m128i front -> __m128i frontH, __m128i frontL``
-    
-    ``__m128i back  -> __m128i backtH, __m128i backL ``
+    __m128i front -> __m128i frontH, __m128i frontL
+    __m128i back  -> __m128i backtH, __m128i backL 
 
-   used commands: ``_mm_movehl_ps``
+    used commands: ``_mm_movehl_ps``
 
 **3) Converting all variables to the format for mulling.**
+
     Multiplying a color component that takes 1 byte by another one-byte value of the alpha component, a 2-byte number is obtained, so I prepare vectors with pixel components for multiplication, supplementing each component with zeros up to 2 bytes.
     
-   After this step each of pixels vector looks so:
+    After this step each of pixels vector looks so:
     
     |index|[15]|[14]|[13]|[12]|[11]|[10]|[09]|[08]|[07]|[06]|[05]|[04]|[03]|[02]|[01]|[00]|
     |:----|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
     |value| ri | 00 | gi | 00 | bi | 00 | ai | 00 | rj | 00 | gj | 00 | bj | 00 | aj | 00 |
 
-   Where ri, gi, bi, ai are red, green, blue, alpha compomemts of one of the pixel
+    Where ri, gi, bi, ai are red, green, blue, alpha compomemts of one of the pixel
 
-   used commands: ``_mm_cvtepu8_epi16``
+    used commands: ``_mm_cvtepu8_epi16``
 
 **4) Getting alpha parameters in the same format.**
-    To multiply pixel vectors on alpa we should prepare vectors, that contain alpha component of every front pixel. I create them at the same format for the next mulling.
     
-   After this step there are 2 vector variables that look so:
+     To multiply pixel vectors on alpa we should prepare vectors, that contain alpha component of every front pixel. I create them at the same format for the next mulling.
+    
+    After this step there are 2 vector variables that look so:
     
     |index|[15]|[14]|[13]|[12]|[11]|[10]|[09]|[08]|[07]|[06]|[05]|[04]|[03]|[02]|[01]|[00]|
     |:----|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
     |value| ai | 00 | ai | 00 | ai | 00 | ai | 00 | aj | 00 | aj | 00 | aj | 00 | aj | 00 |
 
-    ``__m128i frontL -> __m128i alphaL``
-    
-    ``__m128i frontH -> __m128i alphaH``
+    __m128i frontL -> __m128i alphaL
+    __m128i frontH -> __m128i alphaH
 
-   used commands: ``_mm_shuffle_epi8`` with mask ``__m128i alpha_shuffle_mask = {128, 14, 128, 14, 128, 14, 128, 14, 128, 6, 128, 6, 128, 6, 128, 6}``
+    used commands: ``_mm_shuffle_epi8`` with mask ``__m128i alpha_shuffle_mask = {128, 14, 128, 14, 128, 14, 128, 14, 128, 6, 128, 6, 128, 6, 128, 6}``
 
 **5) Mulling front and back colors on alphas.**
 
-    ``frontL *= alphaL        ``, ``frontH *= alphaH        ``
-    ``backL  *= (255 - alphaL)``, ``backH  *= (255 - alphaH)``
+    frontL *= alphaL        , frontH *= alphaH        
+    backL  *= (255 - alphaL), backH  *= (255 - alphaH)
 
-   used commands: ``_mm_mullo_epi16``, ``_mm_sub_epi16``
+    used commands: ``_mm_mullo_epi16``, ``_mm_sub_epi16``
 
 **6) Summing front and back colors.**
 
-    ``__m128i sumL = frontL + backL``
-    ``__m128i sumH = frontH + backH``
+    __m128i sumL = frontL + backL
+    __m128i sumH = frontH + backH
 
-   used commands: ``_mm_add_epi16``
+    used commands: ``_mm_add_epi16``
 
 **7) Normalizing sums.**
+    
     In the blending formula it's said that alpha parameter have to be normalized, in our case we have to divide the previous results on 255 to do it, because it is in a range from 0 to 255. However, there is a simplier and faster way to do it with a small error, that almost don't affect the result. The solution that makes step faster is division on 256 to normalize the result, because it has simple byte-operation amalog ``>>8`` that is much faster. To do it, I take the most significant byte of every component and rewrite it to the high bytes of the vector.
 
     ``sumL = sumL >> 8``
     
     ``sumH = sumH >> 8``
 
-   used commands: ``_mm_shuffle_epi8`` with mask ``__m128i sum_shuffle_mask = {128, 128, 128, 128, 128, 128, 128, 128, 15, 13, 11, 9, 7, 5, 3, 1}``
+    used commands: _mm_shuffle_epi8 with mask __m128i sum_shuffle_mask = {128, 128, 128, 128, 128, 128, 128, 128, 15, 13, 11, 9, 7, 5, 3, 1}
 
 **8) Storing all four result pixels in result var.**
+
     I join two sum vector variables to a new variable to load it to the memory at the next step.
 
-    ``sumH, sumL -> __m128i screen``
+    sumH, sumL -> __m128i screen
 
-   used commands: ``_mm_movelh_ps``
+    used commands: _mm_movelh_ps
 
 **9) Loading result pixels to the Screen array.**
 
-    ``Screen[i] = screen``
+    Screen[i] = screen
 
-   used commands: ``_mm_store_si128``
+    used commands: _mm_store_si128
 
 ### AVX2 optimization
 in process...
