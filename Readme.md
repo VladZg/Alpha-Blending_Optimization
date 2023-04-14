@@ -4,7 +4,7 @@
 In this work I tried to optimize algorithm of merging pictures by using available on my computer SIMD-instructions: SSE and AVX2.
 
 **Goals**:
-- to achieve maximum speed up the algorithm of alpha-blending using SIMD-instrucrtions
+- to achieve maximum speed up of the algorithm of alpha-blending using SIMD-instrucrtions
 - compare perfomances of programms that use SSE and AVX2 instructions
 - compare alligned and non-alligned instructions of loading data 
 
@@ -147,8 +147,9 @@ where times are taken with the same set of flags
 
 ## Results
 The result of running programm in the DRAW_MODE
+
 ![Result](Pictures/Result.png)
 
 ## Conclusions
-- Max speedup is **147,0/9.1 = 16.2**
+- Max speedup that I as able to achieve is **147,0/9.1 = 16.2**
 - Optimizing alpha-blending alogithm by using SSE instructions, a speedup of **147.0/12.5 = 11.8** times was achieved.
