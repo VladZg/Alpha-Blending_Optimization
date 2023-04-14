@@ -42,14 +42,14 @@ We are able to process four pixels at the same time by using __m128i variables a
     __m128i front = Front[i]
     __m128i back  = Back[i] 
 
-    used commands: ``_mm_load_si128`` <-- I use instructions that work with alligned data, because they're faster
+    used commands: _mm_load_si128 <-- I use instructions that work with alligned data, because they're faster
 
 **2) Splitting pixels data on two variables (higher (1,2) and lower (3,4) pixels).**
 
     __m128i front -> __m128i frontH, __m128i frontL
     __m128i back  -> __m128i backtH, __m128i backL 
 
-    used commands: ``_mm_movehl_ps``
+    used commands: _mm_movehl_ps
 
 **3) Converting all variables to the format for mulling.**
 
@@ -63,7 +63,7 @@ We are able to process four pixels at the same time by using __m128i variables a
 
     Where ri, gi, bi, ai are red, green, blue, alpha compomemts of one of the pixel
 
-    used commands: ``_mm_cvtepu8_epi16``
+    used commands: _mm_cvtepu8_epi16
 
 **4) Getting alpha parameters in the same format.**
     
@@ -78,29 +78,28 @@ We are able to process four pixels at the same time by using __m128i variables a
     __m128i frontL -> __m128i alphaL
     __m128i frontH -> __m128i alphaH
 
-    used commands: ``_mm_shuffle_epi8`` with mask ``__m128i alpha_shuffle_mask = {128, 14, 128, 14, 128, 14, 128, 14, 128, 6, 128, 6, 128, 6, 128, 6}``
+    used commands: _mm_shuffle_epi8 with mask __m128i alpha_shuffle_mask = {128, 14, 128, 14, 128, 14, 128, 14, 128, 6, 128, 6, 128, 6, 128, 6}
 
 **5) Mulling front and back colors on alphas.**
 
     frontL *= alphaL        , frontH *= alphaH        
     backL  *= (255 - alphaL), backH  *= (255 - alphaH)
 
-    used commands: ``_mm_mullo_epi16``, ``_mm_sub_epi16``
+    used commands: _mm_mullo_epi16, _mm_sub_epi16
 
 **6) Summing front and back colors.**
 
     __m128i sumL = frontL + backL
     __m128i sumH = frontH + backH
 
-    used commands: ``_mm_add_epi16``
+    used commands: _mm_add_epi16
 
 **7) Normalizing sums.**
     
     In the blending formula it's said that alpha parameter have to be normalized, in our case we have to divide the previous results on 255 to do it, because it is in a range from 0 to 255. However, there is a simplier and faster way to do it with a small error, that almost don't affect the result. The solution that makes step faster is division on 256 to normalize the result, because it has simple byte-operation amalog ``>>8`` that is much faster. To do it, I take the most significant byte of every component and rewrite it to the high bytes of the vector.
 
-    ``sumL = sumL >> 8``
-    
-    ``sumH = sumH >> 8``
+    sumL = sumL >> 8
+    sumH = sumH >> 8
 
     used commands: _mm_shuffle_epi8 with mask __m128i sum_shuffle_mask = {128, 128, 128, 128, 128, 128, 128, 128, 15, 13, 11, 9, 7, 5, 3, 1}
 
