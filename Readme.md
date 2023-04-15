@@ -118,10 +118,11 @@ We are able to process four pixels at the same time by using __m128i variables a
     used commands: _mm_store_si128
 
 ### AVX2 optimization
-in process...
+... only for subscribed users ...
+... pay us and keep up to date with updates ...
 
 ## Perfomance
-To evaluate and compare the speed of working algorithms I calculate fps value of 10 cycles of Alpha-Blending
+To evaluate and compare the speed of algorithms I calculate fps value of 10 cycles of Alpha-Blending
 
 ``fps = 1 / blending_time``
 
@@ -133,8 +134,8 @@ Evaluations made with precision ~ ``2%``
 |:------------------|:-----:|:--:|:---:|:---:|:-------:|:----:|
 |no optimization    |**9.1**|9.7 |12.1 |12.6 |12.5     |12.5  |
 |                   |       |    |     |     |         |      |
-|SSE inctructions   |9.7    |9.9 |133.0|132.0|**147.0**|145.0 |
-|speed increase     |1.1    |1.02|11.0 |15.2 |11.8     |11.6  |
+|SSE inctructions   |9.7    |9.9 |133.0|135.0|**147.0**|145.0 |
+|speed increase     |1.1    |1.02|11.0 |10.7 |11.8     |11.6  |
 |                   |       |    |     |     |         |      |
 |AVX2 instructions  |       |    |     |     |         |      |
 |speed increase     |       |    |     |     |         |      |
@@ -151,5 +152,5 @@ The result of running programm in the DRAW_MODE
 ![Result](Pictures/Result.png)
 
 ## Conclusions
-- Max speedup that I as able to achieve is **147,0/9.1 = 16.2**
-- Optimizing alpha-blending alogithm by using SSE instructions, a speedup of **147.0/12.5 = 11.8** times was achieved.
+- Max speedup that I was able to achieve is **147,0/9.1 = 16.2**
+- Optimizing alpha-blending alogithm by using SSE SIMD-instructions, a speedup of 1.1 times was achieved without using optimization flag. However, speed increases about **14-15** times comparing programm without flags, when using ``-O2``, ``-O3``, ``-Ofast`` flags.
