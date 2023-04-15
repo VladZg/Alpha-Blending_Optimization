@@ -2,7 +2,10 @@
 #define INTRINSICS_PRINTF_CPP
 
 #include <stdio.h>
+#include <SFML/Graphics.hpp>
 #include "../Include/IntrinsicsPrintf.h"
+
+using namespace sf;
 
 inline void printf_m128(__m128 a)
 {
