@@ -7,7 +7,7 @@
 #include "./Include/AppUtils.h"
 
 // #define DRAW_MODE
-// #define MOVE_MODE
+#define MOVE_MODE
 
 #define SSE_MODE
 // #define AVX2_MODE
