@@ -23,7 +23,7 @@ So perfomance of algorithm depends on amount of pixels in resulting picture
 
 ``t ~ width * height``
 
-## Used data
+## Data
 In our case, there are two pictures given.
 
 ![Table](Pictures/Table.bmp)
@@ -130,15 +130,15 @@ It's important to evaluate the time correctly, so when I do it, app don't draw a
 
 Evaluations made with precision ~ ``2%``
 
-|optimization \ flag|None   |-O0 |-O1  |-O2  |-O3      |-Ofast|
-|:------------------|:-----:|:--:|:---:|:---:|:-------:|:----:|
-|no optimization    |**9.1**|9.7 |12.1 |12.6 |12.5     |12.5  |
-|                   |       |    |     |     |         |      |
-|SSE inctructions   |9.7    |9.9 |133.0|135.0|**147.0**|145.0 |
-|speed increase     |1.1    |1.02|11.0 |10.7 |11.8     |11.6  |
-|                   |       |    |     |     |         |      |
-|AVX2 instructions  |       |    |     |     |         |      |
-|speed increase     |       |    |     |     |         |      |
+|optimization \ flag|None   |-O0  |-O1  |-O2  |-O3      |-Ofast|
+|:------------------|:-----:|:---:|:---:|:---:|:-------:|:----:|
+|no optimization    |**9.1**|9.7  |12.1 |12.6 |12.5     |12.5  |
+|                   |       |     |     |     |         |      |
+|SSE inctructions   |9.7    |9.9  |133.0|135.0|**147.0**|145.0 |
+|speed increase     |x1.1   |x1.02|x11.0|x10.7|x11.8    |x11.6 |
+|                   |       |     |     |     |         |      |
+|AVX2 instructions  |       |     |     |     |         |      |
+|speed increase     |       |     |     |     |         |      |
 
 In the table speed increase calculated by formula
 
